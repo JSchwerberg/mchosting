@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from hosting.models import MinecraftPlan, MinecraftFeature, MinecraftService
+from django.http import HttpResponse
 import simplejson
 
 class MinecraftPlanAdmin(admin.ModelAdmin):
@@ -27,6 +28,7 @@ class MinecraftFeatureAdmin(admin.ModelAdmin):
         ('Service Specific',    {'fields': ['required_memory', 'required_storage']})
     ]
     list_display = ('name', 'short_desc', 'price')
+    actions = ['deactivate', 'activate']
 
     def deactivate(self, request, queryset):
         queryset.update(active=False)
@@ -41,23 +43,26 @@ class MinecraftServiceAdmin(admin.ModelAdmin):
     actions = ['resend_json']
 
     def resend_json(self, request, queryset):
+        response = ""
         for obj in queryset:
-            fields = {}
             features = []
             fields = {
-                'action': 'update'
-                'id': obj.id
-                'memory': obj.minecraftplan.max_memory
-                'storage': obj.minecraftplan.max_storage
+                'action': 'update',
+                'id': obj.id,
+                'memory': obj.plan.max_memory,
+                'storage': obj.plan.max_storage,
             }
-            for f in obj.minecraftfeature:
-                features += feature.internal_name
+            for f in obj.features.all():
+                features.append(f.internal_name)
             fields['features'] = ",".join(features)
             json = simplejson.dumps(fields)
-            # send_json(fields)
+            # response = send_json(fields)
+            response = response + json
+        return HttpResponse("JSON Dump: %s" % response)
+    
     resend_json.short_description = "Update selected servers on back-end"
 
-
+    
 
 admin.site.register(MinecraftPlan, MinecraftPlanAdmin)
 admin.site.register(MinecraftFeature, MinecraftFeatureAdmin)

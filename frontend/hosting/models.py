@@ -62,11 +62,11 @@ class MinecraftFeature(Feature):
 class MinecraftPlan(Plan):
     max_memory = models.BigIntegerField()
     max_storage = models.BigIntegerField()
-    included_features = models.ManyToManyField(MinecraftFeature)
+    included_features = models.ManyToManyField(MinecraftFeature, null=True, blank=True)
 
 class MinecraftService(Service):
     plan = models.ForeignKey(MinecraftPlan)
-    features = models.ManyToManyField(MinecraftFeature)
+    features = models.ManyToManyField(MinecraftFeature, null=True, blank=True)
 
     def __unicode__(self):
         return str(self.id)
