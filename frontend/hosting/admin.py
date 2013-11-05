@@ -43,6 +43,7 @@ class MinecraftServiceAdmin(admin.ModelAdmin):
     def resend_json(self, request, queryset):
         for obj in queryset:
             fields = {}
+            features = []
             fields = {
                 'action': 'update'
                 'id': obj.id
@@ -50,8 +51,7 @@ class MinecraftServiceAdmin(admin.ModelAdmin):
                 'storage': obj.minecraftplan.max_storage
             }
             for f in obj.minecraftfeature:
-            features = []
-            features += feature.internal_name
+                features += feature.internal_name
             fields['features'] = ",".join(features)
             json = simplejson.dumps(fields)
             # send_json(fields)
