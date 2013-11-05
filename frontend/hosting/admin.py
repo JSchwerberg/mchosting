@@ -1,6 +1,7 @@
 from django.contrib import admin
+from django.contrib.contenttypes.models import ContentType
 from hosting.models import MinecraftPlan, MinecraftFeature, MinecraftService
-from django.core import serializers
+import simplejson
 
 class MinecraftPlanAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -40,7 +41,20 @@ class MinecraftServiceAdmin(admin.ModelAdmin):
     actions = ['resend_json']
 
     def resend_json(self, request, queryset):
-        pass
+        for obj in queryset:
+            fields = {}
+            fields = {
+                'action': 'update'
+                'id': obj.id
+                'memory': obj.minecraftplan.max_memory
+                'storage': obj.minecraftplan.max_storage
+            }
+            for f in obj.minecraftfeature:
+            features = []
+            features += feature.internal_name
+            fields['features'] = ",".join(features)
+            json = simplejson.dumps(fields)
+            # send_json(fields)
     resend_json.short_description = "Update selected servers on back-end"
 
 
